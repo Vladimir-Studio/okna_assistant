@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>FAQ ассистент</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .chat-launcher {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 64px;
+      height: 64px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.7);
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      z-index: 1000;
+    }
+
+    .chat-launcher:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 50px rgba(15, 23, 42, 0.9);
+    }
+
+    .chat-launcher span {
+      font-size: 30px;
+    }
+
+    .chat-widget {
+      position: fixed;
+      bottom: 100px;
+      right: 24px;
+      width: 360px;
+      max-width: calc(100vw - 32px);
+      height: 480px;
+      max-height: calc(100vh - 120px);
+      background: #020617;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.85);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      backdrop-filter: blur(20px);
+    }
+
+    .chat-header {
+      padding: 14px 16px;
+      background: radial-gradient(circle at top left, #4f46e5, #020617);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #e5e7eb;
+    }
+
+    .chat-header-left {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #ffffff, #4f46e5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #020617;
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.6);
+    }
+
+    .chat-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .chat-subtitle {
+      font-size: 11px;
+      color: #cbd5f5;
+      opacity: 0.8;
+    }
+
+    .chat-close {
+      border: none;
+      background: transparent;
+      color: #e5e7eb;
+      font-size: 18px;
+      cursor: pointer;
+      opacity: 0.8;
+    }
+
+    .chat-close:hover {
+      opacity: 1;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 14px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.05), transparent),
+                  radial-gradient(circle at bottom, rgba(129, 140, 248, 0.08), #020617);
+    }
+
+    .chat-message {
+      max-width: 80%;
+      border-radius: 14px;
+      padding: 8px 11px;
+      font-size: 13px;
+      line-height: 1.35;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+    .chat-message.user {
+      margin-left: auto;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      color: #e5e7eb;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-message.bot {
+      margin-right: auto;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: #e5e7eb;
+      border-bottom-left-radius: 4px;
+    }
+
+    .feedback-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .feedback-btn {
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 999px;
+      color: #9ca3af;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 2px 8px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .feedback-btn:hover { background: rgba(148, 163, 184, 0.15); color: #e5e7eb; }
+    .feedback-btn.active-good { background: rgba(34,197,94,0.2); border-color: #22c55e; color: #22c55e; }
+    .feedback-btn.active-bad  { background: rgba(239,68,68,0.2);  border-color: #ef4444; color: #ef4444; }
+
+    .chat-footer {
+      padding: 10px 10px 12px;
+      border-top: 1px solid rgba(30, 64, 175, 0.6);
+      background: linear-gradient(to top, #020617, #020617f5);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 7px 12px;
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .chat-input::placeholder {
+      color: #6b7280;
+    }
+
+    .chat-send {
+      border-radius: 999px;
+      border: none;
+      padding: 7px 12px;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      color: #e5e7eb;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.8);
+    }
+
+    .chat-send:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .chat-send span {
+      font-size: 14px;
+    }
+
+    .typing-indicator {
+      display: inline-flex;
+      gap: 2px;
+    }
+
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: #9ca3af;
+      animation: blink 1s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0.2; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-1px); }
+    }
+  </style>
+</head>
+<body>
+  <button class="chat-launcher" id="chat-launcher" aria-label="Открыть FAQ-ассистента">
+    <span>💬</span>
+  </button>
+
+  <div class="chat-widget" id="chat-widget" style="display:none;">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="avatar">AI</div>
+        <div>
+          <div class="chat-title">FAQ ассистент</div>
+          <div class="chat-subtitle">Задайте вопрос о компании</div>
+        </div>
+      </div>
+      <button class="chat-close" id="chat-close" aria-label="Закрыть чат">×</button>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-footer">
+      <input
+        id="chat-input"
+        class="chat-input"
+        placeholder="Напишите вопрос..."
+      />
+      <button id="chat-send" class="chat-send">
+        <span>➤</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:8000";
+
+    const launcher = document.getElementById("chat-launcher");
+    const widget = document.getElementById("chat-widget");
+    const closeBtn = document.getElementById("chat-close");
+    const messagesEl = document.getElementById("chat-messages");
+    const inputEl = document.getElementById("chat-input");
+    const sendBtn = document.getElementById("chat-send");
+
+    let isSending = false;
+
+    function appendMessage(text, from, dialogId = null) {
+      const wrapper = document.createElement("div");
+      wrapper.style.display = "flex";
+      wrapper.style.flexDirection = "column";
+      wrapper.style.alignItems = from === "user" ? "flex-end" : "flex-start";
+
+      const div = document.createElement("div");
+      div.className = "chat-message " + from;
+      div.textContent = text;
+      wrapper.appendChild(div);
+
+      if (from === "bot" && dialogId) {
+        const row = document.createElement("div");
+        row.className = "feedback-row";
+
+        const good = document.createElement("button");
+        good.className = "feedback-btn";
+        good.textContent = "👍";
+        good.title = "Хороший ответ";
+
+        const bad = document.createElement("button");
+        bad.className = "feedback-btn";
+        bad.textContent = "👎";
+        bad.title = "Плохой ответ";
+
+        async function sendFeedback(value, activeBtn, activeClass, otherBtn) {
+          good.disabled = true;
+          bad.disabled = true;
+          try {
+            await fetch(API_BASE + "/feedback", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ dialog_id: dialogId, feedback: value })
+            });
+            activeBtn.classList.add(activeClass);
+            otherBtn.style.opacity = "0.3";
+          } catch {
+            good.disabled = false;
+            bad.disabled = false;
+          }
+        }
+
+        good.addEventListener("click", () => sendFeedback(1, good, "active-good", bad));
+        bad.addEventListener("click",  () => sendFeedback(-1, bad, "active-bad", good));
+
+        row.appendChild(good);
+        row.appendChild(bad);
+        wrapper.appendChild(row);
+      }
+
+      messagesEl.appendChild(wrapper);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function appendTyping() {
+      const div = document.createElement("div");
+      div.className = "chat-message bot";
+      div.id = "typing-indicator";
+      div.innerHTML = '<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function removeTyping() {
+      const el = document.getElementById("typing-indicator");
+      if (el) el.remove();
+    }
+
+    async function sendMessage() {
+      if (isSending) return;
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      appendMessage(text, "user");
+      inputEl.value = "";
+
+      isSending = true;
+      sendBtn.disabled = true;
+      appendTyping();
+
+      try {
+        const res = await fetch(API_BASE + "/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text, top_k: 3 })
+        });
+
+        if (!res.ok) {
+          throw new Error("Server error");
+        }
+
+        const data = await res.json();
+        removeTyping();
+        appendMessage(data.answer, "bot", data.dialog_id);
+      } catch (err) {
+        console.error(err);
+        removeTyping();
+        appendMessage("Не удалось получить ответ. Попробуйте позже.", "bot");
+      } finally {
+        isSending = false;
+        sendBtn.disabled = false;
+      }
+    }
+
+    launcher.addEventListener("click", () => {
+      widget.style.display = "flex";
+      launcher.style.display = "none";
+      if (!messagesEl.hasChildNodes()) {
+        appendMessage("Привет! Я онлайн-ассистент компании Континент Окна Крым. Задайте вопрос о нашей компании, услугах, продукции и ее стоимости.", "bot");
+      }
+      setTimeout(() => inputEl.focus(), 50);
+    });
+
+    closeBtn.addEventListener("click", () => {
+      widget.style.display = "none";
+      launcher.style.display = "flex";
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
+
+
