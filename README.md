@@ -59,6 +59,42 @@ requirements.txt
 
 ---
 
+## Логирование диалогов и метрики качества
+
+Каждый диалог автоматически записывается в `data/dialogs.jsonl` — один JSON-объект на строку.
+
+Пример записи:
+```json
+{
+  "dialog_id": "uuid",
+  "ts": "2026-03-31T10:00:00+00:00",
+  "message": "Сколько стоит замер?",
+  "answer": "Замер бесплатный...",
+  "context_questions": ["Бесплатный ли замер?"],
+  "retrieval_scores": [0.21, 0.45, 0.67],
+  "avg_retrieval_score": 0.443,
+  "feedback": 1
+}
+```
+
+`retrieval_scores` — FAISS L2-дистанции для каждого найденного документа. Чем меньше — тем точнее совпадение с вопросом пользователя. Используйте `avg_retrieval_distance` из `/metrics` чтобы подобрать порог `RAG_DISTANCE_THRESHOLD` в `app.py`.
+
+`feedback` заполняется через `POST /feedback` или кнопки 👍/👎 в виджете чата.
+
+Просмотр логов вручную:
+```bash
+type data\dialogs.jsonl
+```
+
+Экспорт в CSV для анализа:
+```bash
+python -c "import pandas as pd; pd.read_json('data/dialogs.jsonl', lines=True).to_csv('dialogs.csv', index=False)"
+```
+
+Агрегированная статистика доступна в браузере: `http://localhost:8000/metrics`
+
+---
+
 ## Быстрый старт
 
 ### 1. Окружение
