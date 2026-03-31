@@ -289,8 +289,8 @@
 
     function linkify(text) {
       return text.replace(
-        /(https?:\/\/[^\s]+)/g,
-        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#67e8f9;text-decoration:underline;">$1</a>'
+        /(https?:\/\/[^\s]+?)([.,!?;:)\]'"]*(?:\s|$))/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#67e8f9;text-decoration:underline;">$1</a>$2'
       );
     }
 
