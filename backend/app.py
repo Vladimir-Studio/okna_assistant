@@ -69,7 +69,7 @@ MAX_INPUT_LEN = 500          # максимальная длина сообще�
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", 300))
 TEMPERATURE = float(os.getenv("TEMPERATURE", 0.2))
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
-RAG_DISTANCE_THRESHOLD = 2.0 # FAISS L2-дистанция: выше — контекст нерелевантен
+RAG_DISTANCE_THRESHOLD = float(os.getenv("RAG_DISTANCE_THRESHOLD", 1.6)) # FAISS L2-дистанция: выше — контекст нерелевантен
                               # подбери под свои данные, смотри avg_retrieval_distance в /metrics
 
 

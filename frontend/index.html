@@ -287,6 +287,13 @@
 
     let isSending = false;
 
+    function linkify(text) {
+      return text.replace(
+        /(https?:\/\/[^\s]+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#67e8f9;text-decoration:underline;">$1</a>'
+      );
+    }
+
     function appendMessage(text, from, dialogId = null) {
       const wrapper = document.createElement("div");
       wrapper.style.display = "flex";
@@ -295,7 +302,11 @@
 
       const div = document.createElement("div");
       div.className = "chat-message " + from;
-      div.textContent = text;
+      if (from === "bot") {
+        div.innerHTML = linkify(text);
+      } else {
+        div.textContent = text;
+      }
       wrapper.appendChild(div);
 
       if (from === "bot" && dialogId) {
